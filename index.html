@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Smart Student Rwanda - learning resources, scholarships, research and student opportunities.">
+<title>Smart Student Rwanda</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#0b5ed7;color:white;padding:18px 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.logo{font-size:23px;font-weight:800}.lang{border:0;border-radius:8px;padding:9px 12px}
+.hero{padding:55px 6%;background:linear-gradient(135deg,#e9f2ff,#fff);text-align:center}
+.hero h1{font-size:42px;margin:0 0 12px}.hero p{font-size:18px;color:#526071}
+.search{max-width:650px;margin:25px auto 0;display:flex}.search input{flex:1;padding:15px;border:1px solid #ccd5e2;border-radius:10px 0 0 10px;font-size:16px}.search button{padding:15px 22px;border:0;background:#0b5ed7;color:#fff;border-radius:0 10px 10px 0}
+main{padding:35px 6%;max-width:1200px;margin:auto}.section-title{text-align:center;margin-bottom:25px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.card{background:white;padding:24px;border-radius:14px;box-shadow:0 4px 15px #0000000d;transition:.2s}.card:hover{transform:translateY(-3px)}.icon{font-size:34px}.card h3{margin:10px 0 7px}.card p{color:#667085;line-height:1.5}.card a{color:#0b5ed7;font-weight:700;text-decoration:none}
+.notice{margin-top:35px;background:#fff3cd;padding:20px;border-radius:12px}.results{margin-top:20px}.hidden{display:none}
+footer{margin-top:40px;background:#111827;color:#dbe4f0;text-align:center;padding:28px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎓 Smart Student Rwanda</div>
+  <select class="lang" id="lang" aria-label="Language">
+    <option value="rw">Kinyarwanda</option><option value="en">English</option>
+  </select>
+</header>
+
+<section class="hero">
+  <h1 id="title">Amakuru n'ibikoresho by'abanyeshuri</h1>
+  <p id="subtitle">Kuva kuri Primary kugeza University — kwiga, research, scholarships n'amahirwe.</p>
+  <div class="search">
+    <input id="search" placeholder="Shakisha / Search..." oninput="searchCards()">
+    <button onclick="searchCards()">Search</button>
+  </div>
+</section>
+
+<main>
+  <div class="section-title"><h2 id="explore">Hitamo icyiciro</h2></div>
+  <div class="grid" id="cards">
+    <div class="card searchable"><div class="icon">📚</div><h3>Primary</h3><p>Notes, exercises n'ibikoresho byo kwiga ku banyeshuri ba Primary.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">🎒</div><h3>Secondary</h3><p>Lessons, revision, questions n'ibindi bifasha abanyeshuri ba Secondary.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">🛠️</div><h3>TVET</h3><p>Amakuru n'ibikoresho bifasha abanyeshuri ba TVET n'imyuga.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">🎓</div><h3>University</h3><p>Research, academic writing, assignments n'amahirwe ya University.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">💰</div><h3>Scholarships</h3><p>Amakuru ku masomo, scholarships n'amahirwe yo kwiga.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">📝</div><h3>Research & Assignments</h3><p>Research topics, proposal, referencing na academic writing.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">📰</div><h3>Student News</h3><p>Amakuru n'amatangazo bireba abanyeshuri.</p><a href="#">Fungura →</a></div>
+    <div class="card searchable"><div class="icon">🤖</div><h3>Student Tools</h3><p>Calculators n'ibindi bikoresho bifasha mu myigire.</p><a href="#">Fungura →</a></div>
+  </div>
+
+  <div class="notice">
+    <strong>💡 Note:</strong> <span id="note">Iyi ni version ya mbere. Tuzongeramo content nyinshi, search nziza, accounts, automatic updates n'uburyo bwo kuyinjizamo amafaranga.</span>
+  </div>
+</main>
+
+<footer>© 2026 Smart Student Rwanda — Learn • Research • Grow</footer>
+
+<script>
+const data={
+rw:{title:"Amakuru n'ibikoresho by'abanyeshuri",subtitle:"Kuva kuri Primary kugeza University — kwiga, research, scholarships n'amahirwe.",explore:"Hitamo icyiciro",note:"Iyi ni version ya mbere. Tuzongeramo content nyinshi, search nziza, accounts, automatic updates n'uburyo bwo kuyinjizamo amafaranga."},
+en:{title:"Student information & learning resources",subtitle:"From Primary to University — learning, research, scholarships and opportunities.",explore:"Choose a category",note:"This is the first version. We will add more content, better search, accounts, automatic updates and monetization."}
+};
+document.getElementById("lang").addEventListener("change",e=>{
+ const d=data[e.target.value]; document.getElementById("title").textContent=d.title;
+ document.getElementById("subtitle").textContent=d.subtitle; document.getElementById("explore").textContent=d.explore; document.getElementById("note").textContent=d.note;
+});
+function searchCards(){
+ const q=document.getElementById("search").value.toLowerCase();
+ document.querySelectorAll(".searchable").forEach(c=>c.classList.toggle("hidden",q && !c.innerText.toLowerCase().includes(q)));
+}
+</script>
+</body>
+</html>
