@@ -1,0 +1,121 @@
+name: Smart Student Rwanda - Auto Update
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get website files
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install tools
+        run: pip install requests beautifulsoup4
+
+      - name: Get official education updates
+        run: |
+          python - <<'PY'
+          import requests
+          from bs4 import BeautifulSoup
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          sources = [
+              {
+                  "name": "HEC Scholarships",
+                  "url": "https://www.hec.gov.rw/updates/scholarships",
+                  "match": "/updates/scholarships/scholarships-detail"
+              },
+              {
+                  "name": "MINEDUC News",
+                  "url": "https://www.mineduc.gov.rw/updates/news-2",
+                  "match": "/news-detail/"
+              }
+          ]
+
+          items = []
+
+          for source in sources:
+              try:
+                  response = requests.get(
+                      source["url"],
+                      timeout=30,
+                      headers={"User-Agent": "Smart-Student-Rwanda/1.0"}
+                  )
+                  response.raise_for_status()
+                  soup = BeautifulSoup(response.text, "html.parser")
+                  seen = set()
+
+                  for link in soup.find_all("a", href=True):
+                      href = link.get("href", "")
+                      title = link.get_text(" ", strip=True)
+
+                      if source["match"] not in href:
+                          continue
+                      if not title or len(title) < 5:
+                          continue
+
+                      if href.startswith("/"):
+                          base = source["url"].split("/", 3)
+                          href = base[0] + "//" + base[2] + href
+
+                      key = (title, href)
+                      if key in seen:
+                          continue
+
+                      seen.add(key)
+                      items.append({
+                          "title": title,
+                          "source": source["name"],
+                          "url": href
+                      })
+
+              except Exception as e:
+                  print("Could not update", source["name"], ":", e)
+
+          unique = []
+          seen = set()
+
+          for item in items:
+              if item["url"] not in seen:
+                  seen.add(item["url"])
+                  unique.append(item)
+
+          data = {
+              "updated_at": datetime.now(timezone.utc).isoformat(),
+              "items": unique[:30]
+          }
+
+          Path("data").mkdir(exist_ok=True)
+
+          with open("data/education-updates.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+
+          print("Saved", len(unique[:30]), "education updates.")
+          PY
+
+      - name: Save updates to GitHub
+        run: |
+          git config user.name "Smart Student Rwanda Bot"
+          git config user.email "actions@github.com"
+          git add data/education-updates.json
+
+          if git diff --cached --quiet; then
+            echo "No new updates."
+          else
+            git commit -m "Update education news and scholarships"
+            git push
+          fi
