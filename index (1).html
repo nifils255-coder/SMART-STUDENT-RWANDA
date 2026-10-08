@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Student Rwanda</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#172033}
+header{background:#123b6d;color:white;padding:25px 18px}
+main{max-width:1100px;margin:auto;padding:20px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+button{padding:10px 13px;border:0;border-radius:8px;cursor:pointer}
+.lang{float:right}
+.hero,.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:15px}
+input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd4df;border-radius:10px;margin:10px 0}
+a{color:#075eaa;font-weight:bold}small{color:#687386}
+.badge{background:#e7f0ff;padding:5px 8px;border-radius:20px;font-size:12px}
+footer{text-align:center;margin-top:35px;padding:25px;color:#687386}
+</style>
+</head>
+<body>
+<header><main>
+<button class="lang" id="langBtn" onclick="toggleLang()">🇷🇼 Kinyarwanda</button>
+<h1>🎓 <span data-en="Smart Student Rwanda" data-rw="Smart Student Rwanda">Smart Student Rwanda</span></h1>
+<p data-en="Learn • Discover • Grow" data-rw="Wige • Menya • Iterambere">Learn • Discover • Grow</p>
+<nav>
+<button onclick="filter('All')" data-en="All" data-rw="Byose">All</button>
+<button onclick="filter('News')" data-en="Student News" data-rw="Amakuru y’Abanyeshuri">Student News</button>
+<button onclick="filter('Scholarship')" data-en="Scholarships" data-rw="Amashuri/Scholarships">Scholarships</button>
+<button onclick="filter('Education')" data-en="Education" data-rw="Uburezi">Education</button>
+<button onclick="filter('Research')" data-en="Research" data-rw="Ubushakashatsi">Research</button>
+</nav>
+</main></header>
+<main>
+<section class="hero">
+<h2 data-en="Welcome to Smart Student Rwanda" data-rw="Murakaza neza kuri Smart Student Rwanda">Welcome to Smart Student Rwanda</h2>
+<p data-en="Information for students from Primary to University." data-rw="Amakuru afasha abanyeshuri kuva ku mashuri abanza kugeza muri Kaminuza.">Information for students from Primary to University.</p>
+<input id="search" data-en-placeholder="Search news, scholarships, research..." data-rw-placeholder="Shakisha amakuru, scholarships, ubushakashatsi..." placeholder="Search news, scholarships, research..." oninput="render()">
+</section>
+<h2 id="title">Latest information</h2>
+<section id="feed" class="grid"></section>
+<footer><p>© 2026 Smart Student Rwanda</p>
+<p data-en="Always verify deadlines and requirements on the official source." data-rw="Buri gihe genzura amatariki n’ibisabwa kuri source yemewe.">Always verify deadlines and requirements on the official source.</p></footer>
+</main>
+<script>
+let lang='en',current='All';
+let items=[
+{type:'Scholarship',titleEn:'Government Study Loan – January 2027 Intake',titleRw:'Inguzanyo ya Leta yo kwiga – Intake ya Mutarama 2027',date:'2 Oct 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Call for applications for the Government Study Loan January 2027 intake.',descRw:'Itangazo ry’abifuza gusaba inguzanyo ya Leta yo kwiga muri intake ya Mutarama 2027.'},
+{type:'Scholarship',titleEn:'Algeria – Rwanda Government Scholarships',titleRw:'Buruse za Leta ya Algeria na Rwanda',date:'24 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Scholarship opportunity published by HEC.',descRw:'Amahirwe ya buruse yatangajwe na HEC.'},
+{type:'Scholarship',titleEn:'2026 Commonwealth Scholarships in the United Kingdom',titleRw:'Commonwealth Scholarships 2026 mu Bwongereza',date:'20 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Commonwealth scholarship information.',descRw:'Amakuru yerekeye buruse za Commonwealth.'},
+{type:'Education',titleEn:'MINEDUC education reforms',titleRw:'Ivugurura rya MINEDUC mu burezi',date:'10 Aug 2026',source:'MINEDUC',url:'https://www.mineduc.gov.rw/updates/news-2',descEn:'Updates on teaching, learning and student development.',descRw:'Amakuru ku kwigisha, kwiga no guteza imbere abanyeshuri.'},
+{type:'News',titleEn:'HEC higher education updates',titleRw:'Amakuru mashya ya HEC ku mashuri makuru',date:'30 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/home',descEn:'Latest higher education updates from HEC.',descRw:'Amakuru mashya ya HEC yerekeye amashuri makuru.'}
+];
+
+fetch('data/education-updates.json?ts=' + Date.now())
+.then(response => response.json())
+.then(data => {
+const automaticItems=(data.items||[]).map(item=>({
+type:(item.source||'').toLowerCase().includes('scholarship')?'Scholarship':'News',
+titleEn:item.title||'Education update',
+titleRw:item.title||'Amakuru mashya y’uburezi',
+date:'',
+source:item.source||'Official source',
+url:item.url||'#',
+descEn:'Latest official education update.',
+descRw:'Amakuru mashya y’uburezi aturuka kuri source yemewe.'
+}));
+if(automaticItems.length>0){items=automaticItems.concat(items);render();}
+})
+.catch(error=>console.log('Automatic updates unavailable:',error));
+
+function toggleLang(){lang=lang==='en'?'rw':'en';document.documentElement.lang=lang;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[lang]);document.getElementById('langBtn').textContent=lang==='en'?'🇷🇼 Kinyarwanda':'🇬🇧 English';const s=document.getElementById('search');s.placeholder=s.dataset[lang+'Placeholder'];render()}
+function filter(t){current=t;render()}
+function render(){
+const q=document.getElementById('search').value.toLowerCase();
+const list=items.filter(x=>(current==='All'||x.type===current)&&((x.titleEn+x.titleRw+x.descEn+x.descRw+x.source).toLowerCase().includes(q)));
+document.getElementById('title').textContent=lang==='en'?'Latest information':'Amakuru mashya';
+document.getElementById('feed').innerHTML=list.map(x=>`<article class="card"><span class="badge">${x.type}</span><h3>${lang==='en'?x.titleEn:x.titleRw}</h3><small>${x.date} • ${x.source}</small><p>${lang==='en'?x.descEn:x.descRw}</p><a href="${x.url}" target="_blank" rel="noopener">${lang==='en'?'Read official source →':'Soma kuri source yemewe →'}</a></article>`).join('')||`<p>${lang==='en'?'No information found.':'Nta makuru yabonetse.'}</p>`;
+}
+render();
+</script>
+</body></html>
