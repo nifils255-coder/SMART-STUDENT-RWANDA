@@ -31,7 +31,6 @@ footer{text-align:center;margin-top:35px;padding:25px;color:#687386}
 <button onclick="filter('Research')" data-en="Research" data-rw="Ubushakashatsi">Research</button>
 </nav>
 </main></header>
-
 <main>
 <section class="hero">
 <h2 data-en="Welcome to Smart Student Rwanda" data-rw="Murakaza neza kuri Smart Student Rwanda">Welcome to Smart Student Rwanda</h2>
@@ -43,16 +42,33 @@ footer{text-align:center;margin-top:35px;padding:25px;color:#687386}
 <footer><p>© 2026 Smart Student Rwanda</p>
 <p data-en="Always verify deadlines and requirements on the official source." data-rw="Buri gihe genzura amatariki n’ibisabwa kuri source yemewe.">Always verify deadlines and requirements on the official source.</p></footer>
 </main>
-
 <script>
 let lang='en',current='All';
-const items=[
+let items=[
 {type:'Scholarship',titleEn:'Government Study Loan – January 2027 Intake',titleRw:'Inguzanyo ya Leta yo kwiga – Intake ya Mutarama 2027',date:'2 Oct 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Call for applications for the Government Study Loan January 2027 intake.',descRw:'Itangazo ry’abifuza gusaba inguzanyo ya Leta yo kwiga muri intake ya Mutarama 2027.'},
 {type:'Scholarship',titleEn:'Algeria – Rwanda Government Scholarships',titleRw:'Buruse za Leta ya Algeria na Rwanda',date:'24 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Scholarship opportunity published by HEC.',descRw:'Amahirwe ya buruse yatangajwe na HEC.'},
 {type:'Scholarship',titleEn:'2026 Commonwealth Scholarships in the United Kingdom',titleRw:'Commonwealth Scholarships 2026 mu Bwongereza',date:'20 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/updates/scholarships',descEn:'Commonwealth scholarship information.',descRw:'Amakuru yerekeye buruse za Commonwealth.'},
 {type:'Education',titleEn:'MINEDUC education reforms',titleRw:'Ivugurura rya MINEDUC mu burezi',date:'10 Aug 2026',source:'MINEDUC',url:'https://www.mineduc.gov.rw/updates/news-2',descEn:'Updates on teaching, learning and student development.',descRw:'Amakuru ku kwigisha, kwiga no guteza imbere abanyeshuri.'},
 {type:'News',titleEn:'HEC higher education updates',titleRw:'Amakuru mashya ya HEC ku mashuri makuru',date:'30 Sep 2026',source:'HEC Rwanda',url:'https://www.hec.gov.rw/home',descEn:'Latest higher education updates from HEC.',descRw:'Amakuru mashya ya HEC yerekeye amashuri makuru.'}
 ];
+
+fetch('data/education-updates.json?ts=' + Date.now())
+.then(response => response.json())
+.then(data => {
+const automaticItems=(data.items||[]).map(item=>({
+type:(item.source||'').toLowerCase().includes('scholarship')?'Scholarship':'News',
+titleEn:item.title||'Education update',
+titleRw:item.title||'Amakuru mashya y’uburezi',
+date:'',
+source:item.source||'Official source',
+url:item.url||'#',
+descEn:'Latest official education update.',
+descRw:'Amakuru mashya y’uburezi aturuka kuri source yemewe.'
+}));
+if(automaticItems.length>0){items=automaticItems.concat(items);render();}
+})
+.catch(error=>console.log('Automatic updates unavailable:',error));
+
 function toggleLang(){lang=lang==='en'?'rw':'en';document.documentElement.lang=lang;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[lang]);document.getElementById('langBtn').textContent=lang==='en'?'🇷🇼 Kinyarwanda':'🇬🇧 English';const s=document.getElementById('search');s.placeholder=s.dataset[lang+'Placeholder'];render()}
 function filter(t){current=t;render()}
 function render(){
